@@ -1,24 +1,25 @@
 'use strict';
-const MINE = '*'
 var gGame = {
-    isSecureContext: false,
+    isOn: false,
     shownCount: 0,
     markedCount: 0,
-    secsPassed: 0
+    secsPassed: 0,
+    hp: 3
 };
 var gBoard;
 var gLevel;
 var gGame;
 var gLevel= {
-    i: 4,
-    j: 4,
-    Mines: 4
+    i: 10,
+    j: 10,
+    Mines: 30
 };
 
 
 function initGame() {
+    gGame.isOn=true;
     gBoard = buildBoard();
-    console.table(gBoard);
+    //console.table(gBoard);
     renderBoard(gBoard);
 }
 
@@ -54,7 +55,7 @@ function setMinesNegsCount(board) {
                     if (ii > -1 && ii < gLevel.i) {
                         for (var jj = j-1 ; jj<j+2 ; jj++) {
                             if (jj > -1 && jj < gLevel.j) {
-                                if (board[ii][jj]) negCount++;
+                                if (board[ii][jj].isMine) negCount++;
                             }
                         }
                     }
@@ -88,45 +89,48 @@ function renderBoard(board) {
 }
 
 function cellClicked(elCell) {
+    if (!gGame.isOn) return
     var idStr =  getCellCoord(elCell.id);
-    //console.log(elCell.dataset.j)
-    if (elCell.classList.contains('mine')) {
+    console.log(elCell);
+    if (gBoard[idStr.i][idStr.j].isMine) {
+        elCell.classList.add('clicked');
+        console.log(--gGame.hp);
+        if (gGame.hp<=0) lose();
         elCell.classList.add('deadCell');
-        //console.log(elCell.classList);
+        console.log(elCell.classList);
     } else {
-        console.log(idStr);
-
-        //expandShown(gBoard, elCell, idStr.i, idStr.j);
+        //console.log(idStr);
+        expandShown(gBoard, idStr.i, idStr.j);
     }
+}
+
+function lose() {
+    gGame.isOn=false;
+
 }
 
 function cellMarked(elCell) {
-
+    
 }
 
 function checkGameOver() {
-
+    
 }
 
-function expandShown(board, elCell, i, j) {
-    if (!(board[i][j] === MINE)) {
-        var elCell2 = document.querySelector(`#cell-${i}-${j}`)
-        elCell2.classList
-        for (var ii = i-1 ; ii<i+2 ; ii++) {
-            if (ii > -1 && ii < gLevel.i) {
-                for (var jj = j-1 ; jj<j+2 ; jj++) {
-                    if (jj > -1 && jj < gLevel.j) {
-                        if (board[ii][jj] === MINE) negCount++;
+function expandShown(board, i, j) {
+    if (!(board[i][j].isMine) && !(board[i][j].isShown)) {
+        board[i][j].isShown=true
+        var elCell=renderCell(i, j);
+        elCell.classList.add('clicked');
+        elCell.innerText = `${board[i][j].neighNum}`;
+        if (!board[i][j].neighNum) {
+
+            for (var ii = i-1 ; ii<i+2 ; ii++) {
+                if (ii > -1 && ii < gLevel.i) {
+                    for (var jj = j-1 ; jj<j+2 ; jj++) {
+                        if (jj > -1 && jj < gLevel.j) expandShown(board, ii, jj)
                     }
                 }
-            }
-        }
-    }
-    for (var ii = i-1 ; ii<i+2 ; ii++) {
-        for (var jj = j-1 ; jj<j+2 ; j++) {
-            if (elCell.classList.contains('mine')) continue
-            else {
-                var elCell2 = document.querySelector(`#cell-${ii}-${jj}`)
             }
         }
     }

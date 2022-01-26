@@ -15,10 +15,10 @@ function printMat(mat, selector) {
   }
   
   // location such as: {i: 2, j: 7}
-  function renderCell(location, value) {
+  function renderCell(i, j) {
     // Select the elCell and set the value
-    var elCell = document.querySelector(`.cell-${location.i}-${location.j}`);
-    elCell.innerHTML = value;
+    var elCell = document.querySelector(`#cell-${i}-${j}`);
+    return elCell;
   }
 
   function getCellCoord(strCellId) {
