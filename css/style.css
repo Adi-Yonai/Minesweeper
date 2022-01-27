@@ -1,11 +1,25 @@
 body {
-    background-color: black;
+    background-color: #1A1A40;
+    /*background-color: #222222;*/
 }
 
 td {
-    background-color: blue;
-    height: 70px;
-    width: 70px;
+    background-color: #666666;
+    height: 60px;
+    width: 60px;
+    border-color: black;
+    border-style: solid;
+    margin: 0;
+    text-align: center;
+    font-size:x-large;
+}
+
+.center {
+    border-collapse: collapse;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: auto;
 }
 
 h1 {
@@ -16,6 +30,76 @@ h1 {
     background-color: red;
 }
 
-.flag {
-    background-color: green;
+
+span {
+    color: lightblue;
+}
+
+.reset {
+    background-color: grey;
+    height: 40px;
+    width: 40px; 
+    width: auto;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%);
+    transform: translate(-50%);
+    
+}
+
+.menu {
+    background-color: #7A0BC0;
+    min-height: 40px;
+}
+
+.clicked {
+    background-color: #ccc;
+}
+
+.res-box {
+    position: relative;
+    
+}
+
+.life {
+    background-color: brown;
+    margin-right: 10px;
+    min-height: 40px;
+    position: absolute;
+    text-align: center;
+    font-size:x-large;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.timer {
+    background-color: black;
+    margin-left: 100px;
+    min-height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: absolute;
+    text-align: center;
+    font-size:x-large;
+}
+
+.diffButt {
+    position: relative;
+    margin-left: 10px;
+    margin-right: 10px;
+    min-height: 40px;
+    float: right;
+}
+
+footer {
+    text-align: center;
+    padding: 3px;
+    background-color: #24A19C;
+    color: white;
+}
+
+.game-box {
+    min-height: 750px;
 }

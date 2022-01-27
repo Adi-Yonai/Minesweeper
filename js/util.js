@@ -51,3 +51,17 @@ function printMat(mat, selector) {
     }
     return color;
   }
+
+  function timer() {
+    gGame.secPassed++;
+    if (gGame.secPassed>=60){
+      gGame.secPassed-= 60;
+      gGame.minPassed++;
+      if (gGame.minPassed<10) {
+        elMin.innerText = `0${gGame.minPassed}`;
+      } else elMin.innerText = `${gGame.minPassed}`;
+    } 
+    if (gGame.secPassed<10) {
+      elSec.innerText = `0${gGame.secPassed}`;
+    } else elSec.innerText =  `${gGame.secPassed}`;
+  }
