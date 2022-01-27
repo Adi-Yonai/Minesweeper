@@ -4,8 +4,8 @@ body {
 
 td {
     background-color: blue;
-    height: 100px;
-    width: 100px;
+    height: 70px;
+    width: 70px;
 }
 
 h1 {
@@ -14,4 +14,8 @@ h1 {
 
 .deadCell {
     background-color: red;
+}
+
+.flag {
+    background-color: green;
 }

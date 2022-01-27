@@ -10,13 +10,20 @@ var gBoard;
 var gLevel;
 var gGame;
 var gLevel= {
-    i: 10,
-    j: 10,
-    Mines: 30
+    i: 4,
+    j: 4,
+    Mines: 3
 };
 
+window.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    if (!gGame.isOn) return
+    if (!e.path[0].id.includes('cell') || e.path[0].classList.contains('clicked')) return;
+    cellMarked(e.path[0]);
+  }, false);
 
 function initGame() {
+    gLevel.notMines = gLevel.i * gLevel.j -gLevel.Mines;
     gGame.isOn=true;
     gBoard = buildBoard();
     //console.table(gBoard);
@@ -36,7 +43,7 @@ function buildBoard() {
             var filler = {
                 isMine: order[i*gLevel.i+j],
                 isShown: false,
-                Marked: false
+                isMarked: false
             };
             board[i][j]=filler;
         }
@@ -75,12 +82,12 @@ function renderBoard(board) {
 			strHTML += `\t<td id="cell-${i}-${j}" onclick="cellClicked(this)"`;
 
 
-			strHTML += (board[i][j].isMine) ? ` class="mine" ` :
-            ` class="${board[i][j].neighNum}" `
+			//strHTML += (board[i][j].isMine) ? ` class="mine" ` :
+            //` class="${board[i][j].neighNum}" `
 
-			strHTML += '>\n';
+			strHTML += '>\n\t</td>\n';
 
-			strHTML += '\t</td>\n';
+			strHTML += '';
 		}
 		strHTML += '</tr>\n';
 	}
@@ -90,14 +97,16 @@ function renderBoard(board) {
 
 function cellClicked(elCell) {
     if (!gGame.isOn) return
+    if (elCell.classList.contains('flag')) return
     var idStr =  getCellCoord(elCell.id);
-    console.log(elCell);
+    //console.log(elCell);
     if (gBoard[idStr.i][idStr.j].isMine) {
         elCell.classList.add('clicked');
-        console.log(--gGame.hp);
-        if (gGame.hp<=0) lose();
+        gGame.hp--;
+        gGame.markedCount++;
+        if (gGame.hp<=0) checkGameOver();
         elCell.classList.add('deadCell');
-        console.log(elCell.classList);
+        //console.log(elCell.classList);
     } else {
         //console.log(idStr);
         expandShown(gBoard, idStr.i, idStr.j);
@@ -110,16 +119,37 @@ function lose() {
 }
 
 function cellMarked(elCell) {
-    
+    elCell.classList.toggle('flag');
+    //console.dir(elCell);
+    var cell = getCellCoord(elCell.id);
+    gBoard[cell.i][cell.j].isMarked = !gBoard[cell.i][cell.j].isMarked;
+    //console.log(gBoard[cell.i][cell.j].isMarked);
+    if (gBoard[cell.i][cell.j].isMine) {
+        if (gBoard[cell.i][cell.j].isMarked) {
+            gGame.markedCount++;
+            checkGameOver();
+        } else gGame.markedCount--
+    }
 }
 
 function checkGameOver() {
-    
+    if (gGame.hp<=0) {
+        gGame.isOn=false;
+        console.log('You lose');
+        
+    } 
+    if (gGame.markedCount === gLevel.Mines && gGame.shownCount === gLevel.notMines) {
+        gGame.isOn=false;
+        console.log('You win');
+    }
+
 }
 
 function expandShown(board, i, j) {
     if (!(board[i][j].isMine) && !(board[i][j].isShown)) {
-        board[i][j].isShown=true
+        board[i][j].isShown=true;
+        gGame.shownCount++;
+        checkGameOver();
         var elCell=renderCell(i, j);
         elCell.classList.add('clicked');
         elCell.innerText = `${board[i][j].neighNum}`;
@@ -128,7 +158,7 @@ function expandShown(board, i, j) {
             for (var ii = i-1 ; ii<i+2 ; ii++) {
                 if (ii > -1 && ii < gLevel.i) {
                     for (var jj = j-1 ; jj<j+2 ; jj++) {
-                        if (jj > -1 && jj < gLevel.j) expandShown(board, ii, jj)
+                        if (jj > -1 && jj < gLevel.j) expandShown(board, ii, jj);
                     }
                 }
             }
