@@ -7,6 +7,37 @@
     </head>
     
     <body onload="initGame()" >
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <p>Difficulty:</p>
+                <div><button class="diffButt" onclick="diffChange(this)">Easy</button> </div>
+                <div><button class="diffButt" onclick="diffChange(this)">Intermediate</button></div> 
+                <div><button class="diffButt" onclick="diffChange(this)">Hard</button> </div>
+                <div><button class="diffButt" onclick="diffChange(this)">Custom</button></div> 
+                <p>Options:</p>
+              <div><button class="diffButt" onclick="initManual()">Manual</button></div> 
+              <div><button class="diffButt" style="display: none;" onclick="sBoom()">7 BOOM</button></div> 
+            </div>
+  
+          </div>
+
+        <!-- The Modal -->
+        <div id="recordModal" class="modal">
+
+    <!-- Modal content -->
+            <div class="record-content">
+                <span class="close" onclick="closeRec()">&times;</span>
+                <h2>Best times:</h2>
+              <p id= "Easy">Easy: 00:00</p>
+              <p id= "Intermediate">Intermediate: 00:00</p> 
+              <p id= "Hard">Hard: 00:00</p>
+            </div>
+  
+          </div>
 
         <h1>MineSweeper! </h1>
         <div class="box">
@@ -14,16 +45,15 @@
                 <div class="res-box">
                     <button class="reset" onclick="initGame()">😃</button> 
                 </div>
-                <span class="life"></span>
-                <span class="timer">
+                <div class="life">LIFE: 3</div>
+                <div class="mines">Mines: 0</div>
+                <div class="timer">
                     <span class="min" ></span>
                     <span>:</span>
                     <span class="sec"></span>
-                </span>
-                <button class="diffButt" onclick="diffChange(this)">Easy</button> 
-                <button class="diffButt" onclick="diffChange(this)">Intermediate</button> 
-                <button class="diffButt" onclick="diffChange(this)">Hard</button> 
-                <button class="diffButt" onclick="diffChange(this)">Custom</button> 
+                </div>
+                <button class="modalButt" onclick="openModal()">Difficulty</button> 
+                <button class="recordButt" onclick="openRecord()">Best times</button> 
             </div>
             <div class="game-box">
 

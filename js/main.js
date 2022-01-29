@@ -3,7 +3,7 @@ var gGame = {
     ready: true,
     isOn: false,
     shownCount: 0,
-    markedCount: 0,
+    leftCount: 0,
     secPassed: 0,
     minPassed: 0,
     hp: 3
@@ -14,7 +14,17 @@ var gGame;
 var gLevel= {
     i: 4,
     j: 4,
-    Mines: 3
+    Mines: 3,
+    diff: 'Easy',
+    isManual: false
+};
+var record = {
+    EasyMin: 0,
+    EasySec: 0,
+    IntermediateMin: 0,
+    IntermediateSec: 0,
+    HardMin: 0,
+    HardSec: 0
 };
 var elSec=document.querySelector('.sec');
 elSec.innerText='00';
@@ -24,6 +34,51 @@ var elButt=document.querySelector('.reset');
 var elLife=document.querySelector('.life');
 elLife.innerText=`LIFE: ${gGame.hp}`;
 var intervalID;
+var elDiff = document.querySelector('.diffButt');
+elDiff.classList.add('currDiff');
+var elMines = document.querySelector('.mines');
+var elModal = document.querySelector(".modal");
+var elModalButt = document.querySelector(".modalButt");
+var elRec = document.getElementById('recordModal')
+var elRecButt = document.querySelector(".recordButt");
+var elEasy = document.getElementById('Easy');
+var elInter = document.getElementById('Intermediate');
+var elHard = document.getElementById('Hard');
+var manCount = 0;
+
+if (localStorage.Easy==null || localStorage.Easy == Infinity) localStorage.Easy = Infinity;
+else{
+    var timeSTR = 'Easy: '
+    if (Math.floor(localStorage.Easy/60)<10) {
+        timeSTR += `0${Math.floor(localStorage.Easy/60)}:`;
+      } else timeSTR += `${Math.floor(localStorage.Easy/60)}:`;
+    if (localStorage.Easy%60<10) {
+        timeSTR += `0${localStorage.Easy%60}`;
+      } else timeSTR += `${localStorage.Easy%60}`;
+      elEasy.innerText = timeSTR
+}
+if (localStorage.Intermediate==null || localStorage.Intermediate == Infinity) localStorage.Intermediate = Infinity;
+ else{
+    var timeSTR = 'Intermediate: '
+    if (Math.floor(localStorage.Intermediate/60)<10) {
+        timeSTR += `0${Math.floor(localStorage.Intermediate/60)}:`;
+      } else timeSTR += `${Math.floor(localStorage.Intermediate/60)}:`;
+    if (localStorage.Intermediate%60<10) {
+        timeSTR += `0${localStorage.Intermediate%60}`;
+      } else timeSTR += `${localStorage.Intermediate%60}`;
+      elInter.innerText = timeSTR
+}
+if (localStorage.Hard==null || localStorage.Hard == Infinity) localStorage.Hard = Infinity;
+else{
+    var timeSTR = 'Hard: '
+    if (Math.floor(localStorage.Hard/60)<10) {
+        timeSTR += `0${Math.floor(localStorage.Hard/60)}:`;
+      } else timeSTR += `${Math.floor(localStorage.Hard/60)}:`;
+    if (localStorage.Hard%60<10) {
+        timeSTR += `0${localStorage.Hard%60}`;
+      } else timeSTR += `${localStorage.Hard%60}`;
+      elHard.innerText = timeSTR
+}
 
 window.addEventListener('contextmenu', function (e) {
     e.preventDefault();
@@ -43,12 +98,14 @@ function initGame() {
     elButt.innerText = '😃';
     elSec.innerText='00';
     elMin.innerText='00';
-    gGame.hp=3
-    elLife.innerText=`LIFE: ${gGame.hp}`
+    gGame.hp=3;
+    elLife.innerText=`LIFE: ${gGame.hp}`;
     gLevel.notMines = gLevel.i * gLevel.j -gLevel.Mines;
+    elDiff = document.querySelector('.currDiff');
     gGame.isOn=true;
     gGame.ready=true;
-    gGame.markedCount=0;
+    gGame.leftCount=gLevel.Mines;
+    elMines.innerText = `Mines: ${gGame.leftCount}`;
     gGame.shownCount=0;
     gBoard = buildBoard();
     //console.table(gBoard);
@@ -73,7 +130,6 @@ function buildBoard() {
             board[i][j]=filler;
         }
     }
-    //console.table(board);
     setMinesNegsCount(board);
     return board;
 }
@@ -106,13 +162,7 @@ function renderBoard(board) {
 		for (var j = 0; j < board[0].length; j++) {
             strHTML += `\t<td id="cell-${i}-${j}" onclick="cellClicked(this)"`;
             
-            
-			//strHTML += (board[i][j].isMine) ? ` class="mine" ` :
-            //` class="${board[i][j].neighNum}" `
-            
-			strHTML += '>\n\t</td>\n';
-            
-			strHTML += '';
+			strHTML += '>\n\t</td>\n';            
 		}
 		strHTML += '</tr>\n';
 	}
@@ -122,6 +172,20 @@ function renderBoard(board) {
 
 function cellClicked(elCell) {
     var idStr =  getCellCoord(elCell.id);
+    if (gLevel.isManual) {
+        if (manCount>0) {
+            if (gBoard[idStr.i][idStr.j].isMine == false){
+                gBoard[idStr.i][idStr.j].isMine = true;
+                manCount--;
+                elCell.classList.add('manCell');
+                setTimeout(function () { elCell.classList.remove('manCell')}, 1000)
+            }
+            return;
+        } else {
+            gLevel.isManual = false;
+            setMinesNegsCount(gBoard);
+        }
+    }
     if (gGame.ready) {
         if (gBoard[idStr.i][idStr.j].isMine) {
             console.log(':)')
@@ -138,10 +202,11 @@ function cellClicked(elCell) {
     //console.log(elCell);
     if (gBoard[idStr.i][idStr.j].isMine) {
         elCell.classList.add('clicked');
-        elCell.innerText = '💣'
+        elCell.innerText = '💣';
         gGame.hp--;
         elLife.innerText=`LIFE: ${gGame.hp}`;
-        gGame.markedCount++;
+        gGame.leftCount--;
+        elMines.innerText = `Mines: ${gGame.leftCount}`;
         if (gGame.hp<=0) checkGameOver();
         elCell.classList.add('deadCell');
         //console.log(elCell.classList);
@@ -151,11 +216,6 @@ function cellClicked(elCell) {
     }
 }
 
-function lose() {
-    gGame.isOn=false;
-    
-}
-
 function cellMarked(elCell) {
     elCell.classList.toggle('flag');
     //console.dir(elCell);
@@ -163,13 +223,15 @@ function cellMarked(elCell) {
     gBoard[cell.i][cell.j].isMarked = !gBoard[cell.i][cell.j].isMarked;
     //console.log(gBoard[cell.i][cell.j].isMarked);
     if (gBoard[cell.i][cell.j].isMarked) {
-        gGame.markedCount++;
+        gGame.leftCount--;
+        elMines.innerText = `Mines: ${gGame.leftCount}`;
         checkGameOver();
-    } else gGame.markedCount--;
-    if (gBoard[cell.i][cell.j].isMarked) {
         elCell.innerText= '🚩';
-    } else elCell.innerText= '';
-    
+    } else {
+        gGame.leftCount++;
+        elMines.innerText = `Mines: ${gGame.leftCount}`;
+        elCell.innerText= '';
+    }     
 }
 
 function checkGameOver() {
@@ -181,18 +243,19 @@ function checkGameOver() {
         console.log('You lose');
         return
     } 
-    if (gGame.markedCount === gLevel.Mines && gGame.shownCount === gLevel.notMines) {
+    if (gGame.leftCount === 0 && gGame.shownCount === gLevel.notMines) {
         clearInterval(intervalID);
         gGame.isOn=false;
         gGame.ready=true;
         elButt.innerText = '😎';
         console.log('You win');
+        Store(gLevel.diff,gGame.minPassed*60+gGame.secPassed);
     }
 
 }
 
 function expandShown(board, i, j) {
-    if (!(board[i][j].isMine) && !(board[i][j].isShown)) {
+    if (!board[i][j].isMine && !board[i][j].isShown && !board[i][j].isMarked) {
         board[i][j].isShown=true;
         gGame.shownCount++;
         checkGameOver();
@@ -212,6 +275,7 @@ function expandShown(board, i, j) {
 }
 
 function diffChange(elCell) {
+    elDiff.classList.remove('currDiff');
     if (elCell.innerText.includes('Easy')) {
         gLevel.i = gLevel.j = 4;
         gLevel.Mines = 2
@@ -223,11 +287,107 @@ function diffChange(elCell) {
     if (elCell.innerText.includes('Hard')) {
         gLevel.i = gLevel.j = 12;
         gLevel.Mines = 30
+        gLevel.isCustom = false;
     }
     if (elCell.innerText.includes('Custom')) { 
         gLevel.i = +prompt('Number of columns');
         gLevel.j = +prompt('Number of rows');
         gLevel.Mines = +prompt('Number of mines');
     }
+    if (gLevel.diff == 'Easy') {
+        
+    }
+    gLevel.diff = elCell.innerText;
+    elDiff = elCell;
+    elDiff.classList.add('currDiff');
     initGame();
+}
+
+function openModal() {
+    elModal.style.display = "block";
+}
+
+function closeModal() {
+    elModal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == elModal) {
+        elModal.style.display = "none";
+    }
+    if (event.target == elRec) {
+        elRec.style.display = "none";
+    }
+}
+
+function Store(diff, time) {
+    if ( diff == 'Easy' && time < Number(localStorage.Easy)) {
+        localStorage.Easy = time;
+        elEasy.innerText = `Easy: ${elMin.innerText} : ${elSec.innerText}`
+    }
+    if ( diff == 'Intermediate' && time < Number(localStorage.Intermediate)) {
+        localStorage.Intermediate = time;
+        elInter.innerText = `Easy: ${elMin.innerText} : ${elSec.innerText}`
+    }
+    if ( diff == 'Hard' && time < Number(localStorage.Hard)) {
+        localStorage.Hard = time;
+        elHard.innerText = `Easy: ${elMin.innerText} : ${elSec.innerText}`
+    }
+}
+function openRecord() {
+    elRec.style.display = "block";
+}
+
+function closeRec() {
+    elRec.style.display = "none";
+}
+
+function initManual() {
+    gLevel.isManual=true;
+    closeModal();
+    initGame();
+    var board = []; 
+    for (var i=0 ; i<gLevel.i ; i++) {
+        board[i] = []
+        for (var j=0 ; j<gLevel.j ; j++) {
+            var filler = {
+                isMine: false,
+                isShown: false,
+                isMarked: false
+            };
+            board[i][j]=filler;
+        }
+    }
+    setMinesNegsCount(board);
+    gBoard = board;
+    manCount = gLevel.Mines;
+}
+
+function sBoom() {
+    closeModal();
+    initGame();
+    gGame.leftCount = Math.floor((gLevel.i*gLevel.j)/7);
+    elMines.innerText = `Mines: ${gGame.leftCount}`;
+    gLevel.notMines = gLevel.i * gLevel.j -gLevel.Mines;
+    var order = new Array(gLevel.i*gLevel.j);
+    var board = [];
+    order.fill(false);
+    
+    for (var i=6 ; i<order.length ; i+=7) {
+        order[i] = true;
+    }
+    
+    for (var i=0 ; i<gLevel.i ; i++) {
+        board[i] = []
+        for (var j=0 ; j<gLevel.j ; j++) {
+            var filler = {
+                isMine: order[i*gLevel.i+j],
+                isShown: false,
+                isMarked: false
+            };
+            board[i][j]=filler;
+        }
+    }
+    setMinesNegsCount(board);
+    gBoard = board;
 }
